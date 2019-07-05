@@ -1,19 +1,26 @@
 import React, { Component } from 'react';
-import { Route, Link, NavLink, Switch } from 'react-router-dom'
+import { Route, Link, NavLink, Switch, Redirect } from 'react-router-dom'
 
 import './Blog.css';
-import Posts from './Posts/Posts'
-import NewPost from './NewPost/NewPost'
-import FullPost from './FullPost/FullPost'
+import Posts from './Posts/Posts';
+import asyncComponent from '../../hoc/asyncComponent'
+// import NewPost from './NewPost/NewPost';
+const AsyncNewPost = asyncComponent(() => {
+    return import('./NewPost/NewPost');
+});
+
 
 class Blog extends Component {
+    state = {
+        auth: true,
+    }
     render () {
         return (
             <div>
                 <header className="Blog">
                     <nav>
                         <ul>
-                            <li><NavLink exact to="/">Home</NavLink></li>
+                            <li><NavLink exact to="/posts">Posts</NavLink></li>
                             <li><NavLink exact to={{
                                 pathname: "/new-post",
                                 hash: "#submit", 
@@ -22,10 +29,11 @@ class Blog extends Component {
                         </ul>
                     </nav>
                 </header>
-                <Route path="/" exact component={Posts}/>
                 <Switch>
-                    <Route path="/new-post" exact component={NewPost}/>
-                    <Route path="/:postId" exact component={FullPost}/>
+                    {this.state.auth ? (<Route path="/new-post" component={AsyncNewPost}/>) : null}
+                    {/* <Route path="/new-post" exact component={NewPost}/> */}
+                    <Route path="/posts"  component={Posts}/>
+                    <Redirect from="/" to="/posts"/>
                 </Switch>
             </div>
         );
